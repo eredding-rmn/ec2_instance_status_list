@@ -96,18 +96,17 @@ def configure_logging(args):
 def get_events(session):
     return session.ec2.Instances.events()
 
-
-
-
 if __name__ == '__main__':
     args = resolve_arguments(define_arguments())
     configure_logging(args)
     log.debug('finding events')
+    return_keys = ['Tags']
     event_list = get_events(args.aws)
     event_ids = [item.get("InstanceId") for item in event_list]
-    return_keys = ['Tags']
+    if not len(event_list) > 1:
+        log.error("No instances found in AWS for profile: {0}, region: {1}".format(args.profile,args.region))
+        sys.exit(1)
     instance_info = describe_instance(args.aws,event_ids, return_keys)
-    blank_event_keys = ['InstanceId', 'Code', 'Description', 'NotAfter', 'NotBefore']
     for event in event_list:
         blank_event = defaultdict(str)
         blank_event['profile'] = args.profile
