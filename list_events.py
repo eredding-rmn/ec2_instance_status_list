@@ -8,6 +8,7 @@ create_image(instance_id, name, description=None, no_reboot=False, block_device_
 import re
 import os
 import sys
+import acky
 import json
 import logging
 import datetime
@@ -20,6 +21,11 @@ LOGFORMAT = "%(asctime)s %(levelname)s: (%(process)d) %(name)s: %(message)s"
 LOGNAME = 'list_events.py'
 OUTPUT_LINE = "{0[profile]},{0[region]},{0[hostname]},{0[InstanceId]},{0[Code]},{0[Description]},{0[NotAfter]},{0[NotBefore]}"
 log = logging.getLogger(LOGNAME)
+
+
+class InstanceNotFoundException(Exception):
+    pass
+
 def get_tag(tags, tagname):
     try:
         ltags = tags.get('Tags')
