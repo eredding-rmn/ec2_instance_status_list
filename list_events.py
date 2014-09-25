@@ -71,10 +71,18 @@ def define_arguments():
     std_args = ArgumentParser()
     std_args.add_argument("profile", help="(aka environment)")
     std_args.add_argument("region", help="e.g. us-east-1, us-west-2, etc.")
-
+    std_args.add_argument(
+        "--all",
+        action="store_true",
+        default=False,
+        help="List all events including past events; "
+        "by default, this only reports events that have not occurred"
+    )
     logging = std_args.add_mutually_exclusive_group()
     logging.add_argument("--verbose", action="store_true", default=False)
     logging.add_argument("--debug", action="store_true", default=False)
+
+
 
     return std_args
 
@@ -108,6 +116,9 @@ if __name__ == '__main__':
         sys.exit(1)
     instance_info = describe_instance(args.aws,event_ids, return_keys)
     for event in event_list:
+        if not args.all:
+            if not event.get('NotAfter'):
+                continue
         blank_event = defaultdict(str)
         blank_event['profile'] = args.profile
         blank_event['region'] = args.region
